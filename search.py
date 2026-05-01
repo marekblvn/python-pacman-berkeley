@@ -76,26 +76,43 @@ def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
-    """
-    Search the deepest nodes in the search tree first.
+    frontier = util.Stack()
+    frontier.push((problem.getStartState(), []))
+    visited = set()
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
 
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
+        if state in visited:
+            continue
+        visited.add(state)
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+        if problem.isGoalState(state):
+            return path
+
+        for successor, action, _ in problem.getSuccessors(state):
+            if successor not in visited:
+                frontier.push((successor, path + [action]))
+
+    return []
 
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.Queue()
+    frontier.push((problem.getStartState(), []))
+    visited = set()
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
+        if state in visited:
+            continue
+        visited.add(state)
+        
+        if problem.isGoalState(state):
+            return path
+        
+        for successor, action, _ in problem.getSuccessors(state):
+            if successor not in visited:
+                frontier.push((successor, path + [action]))
+    return []
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
