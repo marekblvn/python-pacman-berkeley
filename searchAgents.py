@@ -344,11 +344,21 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible.
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    position, visited_corners = state
+    unvisited_corners = set(problem.corners) - set(visited_corners)
+    heuristic = 0
+    current_position = position
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    while unvisited_corners:
+        nearest_corner = min(
+            unvisited_corners,
+            key=lambda corner: util.manhattanDistance(current_position, corner)
+        )
+        heuristic += util.manhattanDistance(current_position, nearest_corner)
+        current_position = nearest_corner
+        unvisited_corners.remove(nearest_corner)
+
+    return heuristic
 
 
 
