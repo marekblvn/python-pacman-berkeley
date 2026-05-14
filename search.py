@@ -76,12 +76,12 @@ def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
-    frontier = util.Stack()
-    frontier.push((problem.getStartState(), []))
+    fringe = util.Stack()
+    fringe.push((problem.getStartState(), []))
     visited = set()
 
-    while not frontier.isEmpty():
-        state, path = frontier.pop()
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
 
         if state in visited:
             continue
@@ -92,16 +92,16 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
 
         for successor, action, _ in problem.getSuccessors(state):
             if successor not in visited:
-                frontier.push((successor, path + [action]))
+                fringe.push((successor, path + [action]))
 
     return []
 
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
-    frontier = util.Queue()
-    frontier.push((problem.getStartState(), []))
+    fringe = util.Queue()
+    fringe.push((problem.getStartState(), []))
     visited = set()
-    while not frontier.isEmpty():
-        state, path = frontier.pop()
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
         if state in visited:
             continue
         visited.add(state)
@@ -111,16 +111,16 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
         
         for successor, action, _ in problem.getSuccessors(state):
             if successor not in visited:
-                frontier.push((successor, path + [action]))
+                fringe.push((successor, path + [action]))
     return []
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
-    frontier = util.PriorityQueue()
-    frontier.push((problem.getStartState(), [], 0), 0)
+    fringe = util.PriorityQueue()
+    fringe.push((problem.getStartState(), [], 0), 0)
     visited = set()
 
-    while not frontier.isEmpty():
-        state, path, cost = frontier.pop()
+    while not fringe.isEmpty():
+        state, path, cost = fringe.pop()
 
         if state in visited:
             continue
@@ -132,7 +132,7 @@ def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
         for successor, action, step_cost in problem.getSuccessors(state):
             if successor not in visited:
                 next_cost = cost + step_cost
-                frontier.push((successor, path + [action], next_cost), next_cost)
+                fringe.push((successor, path + [action], next_cost), next_cost)
     return []
 
 def nullHeuristic(state, problem=None) -> float:
@@ -143,14 +143,14 @@ def nullHeuristic(state, problem=None) -> float:
     return 0
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directions]:
-    frontier = util.PriorityQueue()
+    fringe = util.PriorityQueue()
     start = problem.getStartState()
-    frontier.push((start, [], 0), heuristic(start, problem))
+    fringe.push((start, [], 0), heuristic(start, problem))
     best_cost = {start: 0}
     expanded_cost = {}
 
-    while not frontier.isEmpty():
-        state, path, cost = frontier.pop()
+    while not fringe.isEmpty():
+        state, path, cost = fringe.pop()
 
         if state in expanded_cost and cost > expanded_cost[state]:
             continue
@@ -164,7 +164,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directi
             if successor not in best_cost or next_cost < best_cost[successor]:
                 best_cost[successor] = next_cost
                 priority = next_cost + heuristic(successor, problem)
-                frontier.push((successor, path + [action], next_cost), priority)
+                fringe.push((successor, path + [action], next_cost), priority)
 
     return []
 

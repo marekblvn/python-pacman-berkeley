@@ -1,13 +1,17 @@
-### Q1
+# Semestrální práce - 4IZ431 - Umělá inteligence 1
+
+## Q1: Finding a Fixed Food Dot using Depth First Search
+
+Používáme zásobník (stack / LIFO), takže nově přidaný stav je hned expandován.
 
 ```python
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
-    frontier = util.Stack()
-    frontier.push((problem.getStartState(), []))
+    fringe = util.Stack()
+    fringe.push((problem.getStartState(), []))
     visited = set()
 
-    while not frontier.isEmpty():
-        state, path = frontier.pop()
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
 
         if state in visited:
             continue
@@ -18,20 +22,22 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
 
         for successor, action, _ in problem.getSuccessors(state):
             if successor not in visited:
-                frontier.push((successor, path + [action]))
+                fringe.push((successor, path + [action]))
 
     return []
 ```
 
-### Q2
+## Q2: Breadth First Search
+
+Používáme frontu (queue / FIFO), takže expandujeme stavy v pořadí v jakém jsme je přidali do fringe (navštívili).
 
 ```python
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
-    frontier = util.Queue()
-    frontier.push((problem.getStartState(), []))
+    fringe = util.Queue()
+    fringe.push((problem.getStartState(), []))
     visited = set()
-    while not frontier.isEmpty():
-        state, path = frontier.pop()
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
         if state in visited:
             continue
         visited.add(state)
@@ -41,22 +47,22 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
 
         for successor, action, _ in problem.getSuccessors(state):
             if successor not in visited:
-                frontier.push((successor, path + [action]))
+                fringe.push((successor, path + [action]))
     return []
 ```
 
-### Q3
+## Q3: Varying the Cost Function
 
-Používáme PriorityQueue, která při `pop` vrací prvek s nejnižší prioritou, takže UCS vždy expanduje nejprve nejlevnější cestu.
+Používáme PriorityQueue, která při zavolání metody `pop` vrací prvek s nejnižší prioritou, takže UCS vždy expanduje nejprve nejlevnější cestu.
 
 ```python
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
-    frontier = util.PriorityQueue()
-    frontier.push((problem.getStartState(), [], 0), 0)
+    fringe = util.PriorityQueue()
+    fringe.push((problem.getStartState(), [], 0), 0)
     visited = set()
 
-    while not frontier.isEmpty():
-        state, path, cost = frontier.pop()
+    while not fringe.isEmpty():
+        state, path, cost = fringe.pop()
 
         if state in visited:
             continue
@@ -68,24 +74,24 @@ def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
         for successor, action, step_cost in problem.getSuccessors(state):
             if successor not in visited:
                 next_cost = cost + step_cost
-                frontier.push((successor, path + [action], next_cost), next_cost)
+                fringe.push((successor, path + [action], next_cost), next_cost)
     return []
 ```
 
-### Q4
+## Q4: A\* Search
 
 Implementoval jsem klasický A\* algoritmus - nevím co více k tomu napsat. Slovník `best_cost` slouží k uchovávání informace o nejmenší ceně do daného stavu. Slovník `expanded_cost` slouží k uchování informace o ceně již expandovaných stavů - ukládají cenu, kterou stav měl při expandování.
 
 ```python
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directions]:
-    frontier = util.PriorityQueue()
+    fringe = util.PriorityQueue()
     start = problem.getStartState()
-    frontier.push((start, [], 0), heuristic(start, problem))
+    fringe.push((start, [], 0), heuristic(start, problem))
     best_cost = {start: 0}
     expanded_cost = {}
 
-    while not frontier.isEmpty():
-        state, path, cost = frontier.pop()
+    while not fringe.isEmpty():
+        state, path, cost = fringe.pop()
 
         if state in expanded_cost and cost > expanded_cost[state]:
             continue
@@ -99,12 +105,12 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directi
             if successor not in best_cost or next_cost < best_cost[successor]:
                 best_cost[successor] = next_cost
                 priority = next_cost + heuristic(successor, problem)
-                frontier.push((successor, path + [action], next_cost), priority)
+                fringe.push((successor, path + [action], next_cost), priority)
 
     return []
 ```
 
-### Q5
+## Q5: Finding All the Corners
 
 ```python
 class CornersProblem(search.SearchProblem):
@@ -149,7 +155,7 @@ Cílový stav je stav ve kterém jsou navštíveny všechny rohy.
 
 Pro každý možný směr vypočítáme budoucí souřadnice. Pokud na dané souřadnici není zeď, vytvoříme potomka, který obsahuje budoucí stav (budoucí pozice a budoucí navštívené rohy), akci (tzn. směr kterým se Pacman pohnul) a cenu - ta je vždy =1. Je-li budoucí pozice v rohu, pak ten roh označíme jako navštívený.
 
-### Q6
+## Q6: Corners Problem: Heuristic
 
 Heuristická funkce která odhaduje kolik kroků je potřeba k dosažení nenavštívených rohů bludiště. Funkce najde nejbližší nenavštívený roh pomocí Manhattan vzdálenosti a jeho vzdálenost přičte k celkové heuristické hodnotě a takto dokud nejsou navštíveny všechny rohy bludiště. Jinými slovy - ze současné pozice Pacmana jdeme do nejbližšího nenavštíveného rohu dokud nějaký takový existuje. Následně sečteme uražené vzdálenosti.
 
@@ -172,9 +178,9 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     return heuristic
 ```
 
-### Q7
+## Q7: Eating All the Dots
 
-Zvolil jsem heuristickou funkci, která hodnotí podle nejvzdálenějšího jídla od dané pozice. Funkce zkontroluje, jesli v bludišti jsou ještě nějaké "tečky" jídla. Pokud ano, pak přes ně iteruje a pro každou pozici spočítá její vzdálenost od Pacmana (důležité je, že používáme mazeDistance - tedy výpočet respektuje zdi bludiště - hodnota je tak přesnější, než při použití Manhattan distance). Vypočtené vzdálenosti se ukládají do `problem.heuristicInfo`, aby se omezilo opakovaným výpočtům stejných vzdáleností. Myšlenka je, že Pacman musí postupně navštívit všechny pozice jídla, tudíž musí urazit aspoň takovou vzdálenost, která odpovídá nejvzdálenější pozici jídla od současné pozice. Obecně tedy platí, že funkce vrací vzdálenost ze současné k nejvzdálenějšímu jídlu.
+Zvolil jsem heuristickou funkci, která hodnotí podle nejvzdálenějšího jídla od dané pozice. Funkce zkontroluje, jesli v bludišti jsou ještě nějaké "tečky" jídla. Pokud ano, pak přes ně iteruje a pro každou pozici spočítá její vzdálenost od Pacmana (důležité je, že používáme mazeDistance - tedy výpočet respektuje zdi bludiště - hodnota je tak přesnější, než při použití Manhattan distance). Vypočtené vzdálenosti se ukládají do `problem.heuristicInfo`, aby se omezilo opakovaným výpočtům stejných vzdáleností. Myšlenka je, že Pacman musí postupně navštívit všechny pozice jídla, tudíž musí urazit aspoň takovou vzdálenost, která odpovídá nejvzdálenější pozici jídla od současné pozice. Obecně tedy platí, že funkce vrací vzdálenost ze současné pozice k nejvzdálenějšímu jídlu.
 
 ```python
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
@@ -194,9 +200,9 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     return max(distances)
 ```
 
-### Q8
+## Q8: Suboptimal Search
 
-Bylo potřeba doplnit funkci `ClosestDotSearchAgent.findPathToClosestDot`. Funkce použije BFS pro nalezení nejbližšího jídla u kterého máme jistotu, že první nalezené jídlo je nejbližší (nebo jedno z nejbližších).
+Bylo potřeba doplnit metodu `ClosestDotSearchAgent.findPathToClosestDot`. Funkce použije BFS pro nalezení nejbližšího jídla (případně jednoho z nejbližších jídel).
 
 ```python
 class ClosestDotSearchAgent(SearchAgent):
@@ -206,7 +212,7 @@ class ClosestDotSearchAgent(SearchAgent):
         return search.breadthFirstSearch(problem)
 ```
 
-Dále bylo potřeba doplnit podmínku pro cílový stav ve funkci `AnyFoodSearchProblem.isGoalState`. Ta je jednoduchá, protože nám jde pouze o to, jestli se na dané pozici nachází jídlo. A protože stav je tvořen souřadnicemi `x` a `y`, můžeme lehce zkontrolovat jestli je na pozici `x,y` jídlo (`self.food[x][y] == True`).
+Dále bylo potřeba doplnit podmínku pro cílový stav v metodě `AnyFoodSearchProblem.isGoalState`. Ta je jednoduchá, protože nám jde pouze o to, jestli se na dané pozici nachází jídlo. A protože stav je tvořen souřadnicemi `x` a `y`, můžeme lehce zkontrolovat jestli je na pozici `x,y` jídlo (`self.food[x][y] == True`).
 
 ```python
 class AnyFoodSearchProblem(PositionSearchProblem):
